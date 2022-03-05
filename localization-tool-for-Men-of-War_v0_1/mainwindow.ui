@@ -14,30 +14,125 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLabel" name="label_3">
+   <widget class="QPushButton" name="refresh">
     <property name="geometry">
      <rect>
-      <x>90</x>
-      <y>240</y>
-      <width>431</width>
-      <height>16</height>
+      <x>490</x>
+      <y>10</y>
+      <width>111</width>
+      <height>28</height>
      </rect>
     </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string>refresh list</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_4">
+   <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>90</x>
-      <y>280</y>
-      <width>431</width>
-      <height>16</height>
+      <x>9</x>
+      <y>10</y>
+      <width>471</width>
+      <height>521</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QComboBox" name="unit_type">
+       <item>
+        <property name="text">
+         <string>breed</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>stuff</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1,0">
+       <property name="spacing">
+        <number>6</number>
+       </property>
+       <item>
+        <widget class="QTreeView" name="unit_tree">
+         <property name="baseSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="verticalScrollBarPolicy">
+          <enum>Qt::ScrollBarAsNeeded</enum>
+         </property>
+         <property name="horizontalScrollBarPolicy">
+          <enum>Qt::ScrollBarAsNeeded</enum>
+         </property>
+         <property name="autoScroll">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListView" name="unit_hasdone">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="autoScroll">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QScrollBar" name="verticalScrollBar">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QTextEdit" name="edit_unit">
+    <property name="geometry">
+     <rect>
+      <x>510</x>
+      <y>466</y>
+      <width>261</width>
+      <height>51</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="save_unit">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>420</y>
+      <width>93</width>
+      <height>28</height>
      </rect>
     </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string>save</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="check_is_modifed">
+    <property name="geometry">
+     <rect>
+      <x>510</x>
+      <y>430</y>
+      <width>121</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>has modifed</string>
+    </property>
+    <property name="tristate">
+     <bool>false</bool>
     </property>
    </widget>
   </widget>
@@ -75,7 +170,7 @@
   </action>
   <action name="actionsave">
    <property name="text">
-    <string>save</string>
+    <string>save current type</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -126,11 +221,113 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>refresh</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>read_unit()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>646</x>
+     <y>79</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>unit_type</sender>
+   <signal>activated(QString)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>change_show_box(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>244</x>
+     <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>verticalScrollBar</sender>
+   <signal>sliderMoved(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>scrollbar_move(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>467</x>
+     <y>309</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>save_unit</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>save_cur_unit()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>726</x>
+     <y>459</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>unit_tree</sender>
+   <signal>clicked(QModelIndex)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>show_unit(QModelIndex)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>138</x>
+     <y>309</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionsave</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>save_current_type()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>readpath()</slot>
   <slot>quick_type_local()</slot>
   <slot>quick_type_res()</slot>
   <slot>open_setting()</slot>
+  <slot>read_unit()</slot>
+  <slot>change_show_box(QString)</slot>
+  <slot>scrollbar_move(int)</slot>
+  <slot>save_cur_unit()</slot>
+  <slot>show_unit(QModelIndex)</slot>
+  <slot>save_current_type()</slot>
  </slots>
 </ui>

@@ -39,10 +39,39 @@ void Setting::quick_type_res()
     ui->resource->setText(in);
 }
 
+void Setting::quick_type_unit_type()
+{
+    QString in=QFileDialog::getOpenFileName(this,"open","/");
+
+    if(in.isEmpty()){
+        return ;
+    }
+
+    ui->link_set->setText(in);
+}
+
 void Setting::when_button_accepted()
 {
-    emit readpath(ui->localization->text(),ui->resource->text());
+    pre_link=ui->link_set->text();
+    pre_type=ui->unit_link_set->currentText();
+    if(pre_type!="none"&&!pre_type.isEmpty()){
+        link_set.insert(pre_type,pre_link);
+    }
+
+    emit readpath(ui->localization->text(),ui->resource->text(),link_set);
     //emit readpath("111","222");
 
     this->close();
+}
+
+void Setting::change_link_set()
+{
+    if(pre_type!="none"&&!pre_type.isEmpty()){
+        link_set.insert(pre_type,pre_link);
+    }
+
+    pre_link=ui->link_set->text();
+    pre_type=ui->unit_link_set->currentText();
+
+
 }

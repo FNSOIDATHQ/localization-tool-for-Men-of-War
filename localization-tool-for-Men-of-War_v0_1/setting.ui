@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>724</width>
-    <height>300</height>
+    <height>521</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,8 +16,8 @@
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>360</x>
-     <y>240</y>
+     <x>370</x>
+     <y>470</y>
      <width>341</width>
      <height>32</height>
     </rect>
@@ -35,7 +35,7 @@
      <x>0</x>
      <y>0</y>
      <width>721</width>
-     <height>189</height>
+     <height>461</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -99,6 +99,45 @@
        </widget>
       </item>
      </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QComboBox" name="unit_link_set">
+        <item>
+         <property name="text">
+          <string>none</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>breed</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>stuff</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="link_set"/>
+      </item>
+      <item>
+       <widget class="QToolButton" name="toolButton_3">
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="popupMode">
+         <enum>QToolButton::DelayedPopup</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout_2"/>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -188,10 +227,44 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>unit_link_set</sender>
+   <signal>activated(QString)</signal>
+   <receiver>Setting</receiver>
+   <slot>change_link_set()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>45</x>
+     <y>230</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>361</x>
+     <y>260</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toolButton_3</sender>
+   <signal>clicked()</signal>
+   <receiver>Setting</receiver>
+   <slot>quick_type_unit_type()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>695</x>
+     <y>230</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>361</x>
+     <y>260</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>quick_type_local()</slot>
   <slot>quick_type_res()</slot>
   <slot>when_button_accepted()</slot>
+  <slot>change_link_set()</slot>
+  <slot>quick_type_unit_type()</slot>
  </slots>
 </ui>
