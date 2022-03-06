@@ -27,7 +27,7 @@ private:
 
     QString res_path,local_path;
 
-    QFileInfoList breed,stuff;
+    QFileInfoList breed,stuff,weapon,unit;
 
     QFileInfoList *cur_type;
 
@@ -46,7 +46,7 @@ private:
 
     int read_unit_universal(QDir path,QFileInfoList &tar,QString suffix_Filter);
 
-    int create_tree(QFileInfoList,QString);
+    int create_tree(QFileInfoList,QString,int);
 
     void refresh_unit_edit();
 
@@ -62,6 +62,7 @@ public slots:
     void save_cur_unit();
     void show_unit(QModelIndex);
     void save_current_type();
+    void change_localize_state();
 
 };
 #endif // MAINWINDOW_H

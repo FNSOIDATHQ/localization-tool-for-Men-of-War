@@ -41,7 +41,17 @@
       <widget class="QComboBox" name="unit_type">
        <item>
         <property name="text">
+         <string>unit</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>breed</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>weapon</string>
         </property>
        </item>
        <item>
@@ -130,6 +140,31 @@
     </property>
     <property name="text">
      <string>has modifed</string>
+    </property>
+    <property name="tristate">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="check_is_need_localize">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>510</x>
+      <y>400</y>
+      <width>151</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="mouseTracking">
+     <bool>true</bool>
+    </property>
+    <property name="acceptDrops">
+     <bool>false</bool>
+    </property>
+    <property name="text">
+     <string>need localize</string>
     </property>
     <property name="tristate">
      <bool>false</bool>
@@ -317,6 +352,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>check_is_need_localize</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>change_localize_state()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>585</x>
+     <y>435</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>readpath()</slot>
@@ -329,5 +380,6 @@
   <slot>save_cur_unit()</slot>
   <slot>show_unit(QModelIndex)</slot>
   <slot>save_current_type()</slot>
+  <slot>change_localize_state()</slot>
  </slots>
 </ui>

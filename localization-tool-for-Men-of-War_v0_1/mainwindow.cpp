@@ -7,7 +7,7 @@
 #include <QTreeWidget>
 #include <QMessageBox>
 
-#include <QDebug>
+//#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -63,16 +63,47 @@ void MainWindow::read_unit()
 
         res.setSorting(QDir::DirsFirst);
 
-        QDir breed_path,stuff_path;
+        QDir breed_path,weapon_path,unit_path,stuff_path;
+        unit_path=res;
+        unit_path.cd("entity");
+        unit_path.cd("-vehicle");
         breed_path=res;
         breed_path.cd("set");
-        stuff_path=breed_path;
+        weapon_path=breed_path;
         breed_path.cd("breed");
-        stuff_path.cd("stuff");
+        weapon_path.cd("stuff");
+        stuff_path=weapon_path;
 
         read_unit_universal(breed_path,breed,"set");
 
-        read_unit_universal(stuff_path,stuff,"weapon");
+        read_unit_universal(weapon_path,weapon,"weapon");
+
+        read_unit_universal(unit_path,unit,"def");
+
+        if(stuff_path.cd("head")){//必须依次按目录添加
+            read_unit_universal(stuff_path,stuff,"");
+            stuff_path.cdUp();
+        }
+        if(stuff_path.cd("body")){
+            read_unit_universal(stuff_path,stuff,"");
+            stuff_path.cdUp();
+        }
+        if(stuff_path.cd("explosive")){
+            read_unit_universal(stuff_path,stuff,"");
+            stuff_path.cdUp();
+        }
+        if(stuff_path.cd("grenade")){
+            read_unit_universal(stuff_path,stuff,"grenade");
+            stuff_path.cdUp();
+        }
+        if(stuff_path.cd("capacity")){
+            read_unit_universal(stuff_path,stuff,"");
+            stuff_path.cdUp();
+        }
+        if(stuff_path.cd("special")){
+            read_unit_universal(stuff_path,stuff,"");
+            stuff_path.cdUp();
+        }
 
         QString cur_show=ui->unit_type->currentText();
 
@@ -88,12 +119,20 @@ void MainWindow::read_unit()
 void MainWindow::change_show_box(QString cur_show)
 {
     if(cur_show=="breed"){
-        create_tree(breed,"breed");
+        create_tree(breed,"breed",6);
         cur_type=&breed;
     }
     else if(cur_show=="stuff"){
-        create_tree(stuff,"stuff");
+        create_tree(stuff,"stuff",6);
         cur_type=&stuff;
+    }
+    else if(cur_show=="weapon"){
+        create_tree(weapon,"stuff",6);
+        cur_type=&weapon;
+    }
+    else if(cur_show=="unit"){
+        create_tree(unit,"-vehicle",9);
+        cur_type=&unit;
     }
 
     Tree_Data->setHorizontalHeaderLabels(QStringList()<<"Unit Tree");//我不知道有没有更好的办法来保持标题不变
@@ -121,7 +160,7 @@ void MainWindow::scrollbar_move(int value)//外置滚动条
     //ui->unit_tree->scrollToBottom();
 
 
-    qDebug()<<ori_y;
+    //qDebug()<<ori_y;
 
 }
 
@@ -129,8 +168,8 @@ void MainWindow::save_cur_unit()
 {
     bool temp_b2=cur_select->data().value<unit_data>().b_need_localize;
     int temp_index=cur_select->data().value<unit_data>().index;
-    QString tenp_text=ui->edit_unit->toPlainText();
-    unit_data_update(temp_b2,temp_index,tenp_text);
+    QString temp_text=ui->edit_unit->toPlainText();
+    unit_data_update(temp_b2,temp_index,temp_text);
     refresh_unit_edit();
 
 }
@@ -144,6 +183,13 @@ void MainWindow::show_unit(QModelIndex selected)
     }
     else{
         ui->check_is_modifed->setChecked(false);
+    }
+
+    if(cur_select->data().value<unit_data>().b_need_localize==true){
+        ui->check_is_need_localize->setChecked(true);
+    }
+    else{
+        ui->check_is_need_localize->setChecked(false);
     }
 
     refresh_unit_edit();
@@ -178,7 +224,25 @@ void MainWindow::save_current_type()
             tar_file.write(in_data);
 
         }
-    //}
+        //}
+}
+
+void MainWindow::change_localize_state()
+{
+    bool temp_b2;
+
+    if(cur_select->data().value<unit_data>().b_need_localize==true){
+        temp_b2=false;
+        ui->check_is_need_localize->setChecked(false);
+    }
+    else{
+        temp_b2=true;
+        ui->check_is_need_localize->setChecked(true);
+
+    }
+    int temp_index=cur_select->data().value<unit_data>().index;
+    QString temp_text=cur_select->data().value<unit_data>().text;
+    unit_data_update(temp_b2,temp_index,temp_text);
 }
 
 void MainWindow::refresh_unit_edit()
@@ -233,7 +297,7 @@ int MainWindow::read_unit_universal(QDir path,QFileInfoList &tar,QString suffix_
     return 0;
 }
 
-int MainWindow::create_tree(QFileInfoList tar,QString tar_type)
+int MainWindow::create_tree(QFileInfoList tar,QString tar_type,int path_length)
 {
     Tree_Data->clear();//这是一个临时措施
 
@@ -241,14 +305,15 @@ int MainWindow::create_tree(QFileInfoList tar,QString tar_type)
         //qDebug() <<tar.at(i).filePath();
         QString path=tar.at(i).filePath();//获取文件的完整路径（包括文件名）
 
-        path=path.mid(path.indexOf(tar_type)+6);
+        path=path.mid(path.indexOf(tar_type)+path_length);
 
         QStringList path_splited=path.split("/");
 
 
         for(int i=0;i<path_splited.size();i++){
+            bool is_need_add=true;
 
-            if(Tree_Data->findItems(path_splited[i],Qt::MatchContains|Qt::MatchRecursive).isEmpty()){//如果没有找到对应项
+            //if(Tree_Data->findItems(path_splited[i],Qt::MatchExactly,i).isEmpty()){//如果没有找到对应项
                 QStandardItem *temp=new QStandardItem(path_splited[i]);
                     QVariant temp_data;//不管是不是真的需要本地化，都必须添加标签
                     unit_data temp_data_value;
@@ -264,24 +329,76 @@ int MainWindow::create_tree(QFileInfoList tar,QString tar_type)
                     temp->setData(temp_data);
                     //qDebug()<<temp->data().value<unit_data>().text;
 
-
                 QList<QStandardItem*> TempFindList;
-                if(i!=0){//如果有上一级，就检查上一级是否存在
-                   TempFindList=Tree_Data->findItems(path_splited[i-1],Qt::MatchContains|Qt::MatchRecursive);
+                TempFindList=Tree_Data->findItems(path_splited[0],Qt::MatchExactly,0);
+                QStandardItem* cur_item;
+
+
+                if(!TempFindList.empty()){
+                    cur_item=TempFindList[0];
+
+                    if(i!=0){//如果有上一级，就检查上一级是否存在
+                        for(int j=1;j<=i;j++){
+                            int child_index=0;
+
+                            while(cur_item->child(child_index)){//遍历下一层，找到和数据相同的下一个节点
+                                if(cur_item->child(child_index)->text()==path_splited[j]){
+                                    //qDebug()<<"1";
+                                    break;
+                                }
+                                child_index++;
+                            }
+
+                            if(!cur_item->child(child_index)){//如果当前节点没东西，说明没找到下一个
+                                //qDebug()<<1;
+                                break;
+                            }
+                            else if(j==i){//此时说明匹配到了，而且是当前要添加的节点匹配到了，那么就应该立刻弹出
+                                //qDebug()<<2;
+                                is_need_add=false;
+                            }
+                            else{
+                                //qDebug()<<3;
+                                cur_item=cur_item->child(child_index);
+                            }
+                        }
+
+                    }
+                    else{
+                        if(cur_item->text()==path_splited[i]){
+                            is_need_add=false;
+                        }
+                    }
+
                 }
 
-                if(TempFindList.isEmpty()){//如果没有找到上一级，说明它就是底层
+
+
+                //qDebug()<<QString::number(is_need_add);
+                if(!is_need_add){
+                    continue;
+
+                }
+                else if(TempFindList.empty()){
 
                     Tree_Data->appendRow(temp);
+
+                }
+                else if(cur_item->text()!=path_splited[i-1]){//如果没有找到上一级，说明它就是底层
+
+                    Tree_Data->appendRow(temp);
+
                 }
                 else{//如果有上一级，就连接到上一级
-                    QStandardItem* temp_upst=TempFindList[0];
+                    //qDebug()<<4;
+                    QStandardItem* temp_upst=cur_item;
                     temp_upst->appendRow(temp);
+
                 }
 
 
 
-            }
+            //}
 
         }
     }
