@@ -15,12 +15,88 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
+    <item row="4" column="0">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>预览生成文件</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTextBrowser" name="PreviewBrowser"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="save_csv">
+        <property name="text">
+         <string>保存</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="3" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>文件编码</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="encoding">
+        <item>
+         <property name="text">
+          <string>UTF-8</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Windows1251</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="2" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <item>
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>读取模式</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="read_mode">
+        <item>
+         <property name="text">
+          <string>导入原文到csv</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>导入翻译到csv</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>导入翻译到lng</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </item>
     <item row="0" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QLineEdit" name="lng_path">
         <property name="text">
-         <string>D:/steam/steamapps/common/Men of War Assault Squad 2/mods/wzss-eastern_asia_pack_v0_7_5/localization/#dlg_frontend.lng</string>
+         <string>D:/steam/steamapps/common/Men of War Assault Squad 2/mods/wzss-eastern_asia_pack_v0_7_5/localization/test.lng</string>
         </property>
        </widget>
       </item>
@@ -34,28 +110,43 @@
       <item>
        <widget class="QPushButton" name="read_lng">
         <property name="text">
-         <string>读取lng</string>
+         <string>读取文件</string>
         </property>
        </widget>
       </item>
      </layout>
     </item>
     <item row="1" column="0">
-     <layout class="QVBoxLayout" name="verticalLayout">
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>预览CSV文件</string>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
-       </widget>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
       </item>
       <item>
-       <widget class="QTextBrowser" name="PreviewBrowser"/>
-      </item>
-      <item>
-       <widget class="QPushButton" name="save_csv">
+       <widget class="QCheckBox" name="checkBox_forceRead">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::StrongFocus</enum>
+        </property>
         <property name="text">
-         <string>保存</string>
+         <string>强制读取(不检查文件后缀)</string>
         </property>
        </widget>
       </item>
@@ -81,7 +172,7 @@
    <sender>toolButton</sender>
    <signal>clicked()</signal>
    <receiver>lng2csv_tool</receiver>
-   <slot>quick_type_lng()</slot>
+   <slot>quick_type_file_path()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>667</x>
@@ -97,7 +188,7 @@
    <sender>read_lng</sender>
    <signal>clicked()</signal>
    <receiver>lng2csv_tool</receiver>
-   <slot>read_lng_file()</slot>
+   <slot>read_file()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>743</x>
@@ -113,7 +204,7 @@
    <sender>save_csv</sender>
    <signal>clicked()</signal>
    <receiver>lng2csv_tool</receiver>
-   <slot>save_csv_file()</slot>
+   <slot>save_file()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>399</x>
@@ -127,8 +218,8 @@
   </connection>
  </connections>
  <slots>
-  <slot>quick_type_lng()</slot>
-  <slot>read_lng_file()</slot>
-  <slot>save_csv_file()</slot>
+  <slot>quick_type_file_path()</slot>
+  <slot>read_file()</slot>
+  <slot>save_file()</slot>
  </slots>
 </ui>
