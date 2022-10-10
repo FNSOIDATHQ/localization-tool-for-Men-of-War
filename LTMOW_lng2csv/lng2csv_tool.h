@@ -32,7 +32,11 @@ private:
 
     void read_lng_to_csv(QFile* file,QTextCodec *codec);
 
-    bool read_loc_to_csv(QFile* file);
+    bool read_loc_to_csv(QFile* file,QString suffix);
+
+    bool read_lng_loc(QFile* file);
+    bool read_csv_loc(QFile* file);
+
     bool read_loc_to_lng(QFile* file);
 
     bool checklegal(QString file_in,int readMode);

@@ -20,12 +20,12 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>预览生成文件</string>
+         <string>预览和编辑生成文件</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QTextBrowser" name="PreviewBrowser"/>
+       <widget class="QTextEdit" name="PreviewBrowser"/>
       </item>
       <item>
        <widget class="QPushButton" name="save_csv">
@@ -132,6 +132,16 @@
        </spacer>
       </item>
       <item>
+       <widget class="QCheckBox" name="checkBox_isstd">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>使用标识符(读取的文件是否包含LTMOW前缀)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="checkBox_forceRead">
         <property name="enabled">
          <bool>true</bool>
@@ -146,7 +156,7 @@
          <enum>Qt::StrongFocus</enum>
         </property>
         <property name="text">
-         <string>强制读取(不检查文件后缀)</string>
+         <string>强制读取(不检查文件合法性)</string>
         </property>
        </widget>
       </item>
