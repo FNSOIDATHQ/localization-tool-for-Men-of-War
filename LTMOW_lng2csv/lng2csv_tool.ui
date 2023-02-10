@@ -15,7 +15,7 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="4" column="0">
+    <item row="5" column="0">
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QLabel" name="label">
@@ -36,7 +36,7 @@
       </item>
      </layout>
     </item>
-    <item row="3" column="0">
+    <item row="4" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
        <widget class="QLabel" name="label_2">
@@ -55,36 +55,6 @@
         <item>
          <property name="text">
           <string>Windows1251</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item row="2" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout_4">
-      <item>
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>读取模式</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QComboBox" name="read_mode">
-        <item>
-         <property name="text">
-          <string>导入原文到csv</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>导入翻译到csv</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>导入翻译到lng</string>
          </property>
         </item>
        </widget>
@@ -116,7 +86,37 @@
       </item>
      </layout>
     </item>
-    <item row="1" column="0">
+    <item row="3" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <item>
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>读取模式</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="read_mode">
+        <item>
+         <property name="text">
+          <string>导入原文到csv</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>导入翻译到csv</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>导入翻译到lng</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="2" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
        <spacer name="horizontalSpacer">
@@ -157,6 +157,27 @@
         </property>
         <property name="text">
          <string>强制读取(不检查文件合法性)</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="1" column="0">
+     <layout class="QHBoxLayout" name="original_reader">
+      <item>
+       <widget class="QLineEdit" name="original_path"/>
+      </item>
+      <item>
+       <widget class="QToolButton" name="toolButton_2">
+        <property name="text">
+         <string>...</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="read_original_lng">
+        <property name="text">
+         <string>读取原文</string>
         </property>
        </widget>
       </item>
@@ -226,10 +247,60 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>read_mode</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>lng2csv_tool</receiver>
+   <slot>turnto_import_translate_mode(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>596</x>
+     <y>110</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toolButton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>lng2csv_tool</receiver>
+   <slot>quick_type_file_path()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>667</x>
+     <y>85</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>read_original_lng</sender>
+   <signal>clicked()</signal>
+   <receiver>lng2csv_tool</receiver>
+   <slot>read_file()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>743</x>
+     <y>85</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>quick_type_file_path()</slot>
   <slot>read_file()</slot>
   <slot>save_file()</slot>
+  <slot>turnto_import_translate_mode(int)</slot>
+  <slot>read_original()</slot>
  </slots>
 </ui>

@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QFile>
+#include <QPushButton>
 
 namespace Ui {
 class lng2csv_tool;
@@ -20,13 +21,14 @@ public slots:
     void quick_type_file_path();
     void read_file();
     void save_file();
+    void turnto_import_translate_mode(int index);
 private:
     Ui::lng2csv_tool *ui;
 
     QString file_name;
     QString pre_path;
 
-    bool isCSVreaded;
+    bool isCSVreaded,isLNGreaded;
 
     bool read_ori_to_csv(QFile* file,QString suffix);
 
@@ -37,9 +39,11 @@ private:
     bool read_lng_loc(QFile* file);
     bool read_csv_loc(QFile* file);
 
-    bool read_loc_to_lng(QFile* file);
+    bool read_loc_to_lng(QFile* file,QPushButton* shooter);
 
-    bool checklegal(QString file_in,int readMode);
+    bool checklegal(QString file_in,int readMode,QPushButton* shooter);
+
+    void setOriReadVisiable(bool mode);
 };
 
 #endif // LNG2CSV_TOOL_H

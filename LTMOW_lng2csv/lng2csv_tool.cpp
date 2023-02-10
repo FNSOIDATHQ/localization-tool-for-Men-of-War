@@ -15,9 +15,12 @@ lng2csv_tool::lng2csv_tool(QWidget *parent) :
 
     pre_path="C:/";
 
-    setWindowTitle("lng/csv转换工具 v0.031");
+    setWindowTitle("lng/csv转换工具 v0.05");
 
     isCSVreaded=false;
+    isLNGreaded=false;
+
+    setOriReadVisiable(false);
 }
 
 lng2csv_tool::~lng2csv_tool()
@@ -28,7 +31,15 @@ lng2csv_tool::~lng2csv_tool()
 
 void lng2csv_tool::quick_type_file_path()
 {
-    QString in=QFileDialog::getOpenFileName(this,"open",pre_path,"lng(*lng *inc);;csv(*csv)");
+    QToolButton* shooter=qobject_cast<QToolButton *>(sender());
+
+    QString in;
+    if(shooter==ui->toolButton_2){
+        in=QFileDialog::getOpenFileName(this,"open",pre_path,"lng(*lng *inc);;csv(*csv)");
+    }
+    else{
+        in=QFileDialog::getOpenFileName(this,"open",pre_path,"csv(*csv);;lng(*lng *inc)");
+    }
 
     if(in.isEmpty()){
         return ;
@@ -38,21 +49,33 @@ void lng2csv_tool::quick_type_file_path()
     int nIndex = pre_path.lastIndexOf('/');
     pre_path = pre_path.left(nIndex);
 
-    ui->lng_path->setText(in);
+    if(shooter==ui->toolButton){
+        ui->lng_path->setText(in);
+    }
+    else{
+        ui->original_path->setText(in);
+    }
+
 }
 
 
 void lng2csv_tool::read_file(){
-
-    QString file_in=ui->lng_path->text();
-
-    QFile file(file_in);
-
+    QPushButton* shooter=qobject_cast<QPushButton*>(sender());
     int readMode=ui->read_mode->currentIndex();
+    QString file_in;
+    if(shooter==ui->read_lng){
+        file_in=ui->lng_path->text();
+    }
+    else{
+        file_in=ui->original_path->text();
+    }
 
-    QString suffix=QFileInfo(file_in).suffix();
+    if(checklegal(file_in,readMode,shooter)){
 
-    if(checklegal(file_in,readMode)){
+        QFile file(file_in);
+
+        QString suffix=QFileInfo(file_in).suffix();
+
         if(readMode==0){//导入原文到CSV
 
             read_ori_to_csv(&file,suffix);
@@ -61,7 +84,7 @@ void lng2csv_tool::read_file(){
             read_loc_to_csv(&file,suffix);
         }
         else{//导入翻译到lng
-            read_loc_to_lng(&file);
+            read_loc_to_lng(&file,shooter);
         }
     }
 
@@ -78,7 +101,7 @@ void lng2csv_tool::save_file(){
         save_fullpath=QFileDialog::getSaveFileName(this,"Save",file_name,"csv(*csv)");
     }
     else if(readMode==2){
-        save_fullpath=QFileDialog::getSaveFileName(this,"Save",file_name,"lng(*lng)");
+        save_fullpath=QFileDialog::getSaveFileName(this,"Save",file_name,"lng(*lng);;inc(*inc)");
     }
 
     QFile tar_file(save_fullpath);
@@ -92,6 +115,19 @@ void lng2csv_tool::save_file(){
         tar_file.write(in_data);
     }
 
+}
+
+void lng2csv_tool::turnto_import_translate_mode(int index)
+{
+    if(index==2){
+        //ui->PreviewBrowser->setText("import translate mode!");
+        setOriReadVisiable(true);
+        ui->read_lng->setText("读取翻译");
+    }
+    else{
+        setOriReadVisiable(false);
+        ui->read_lng->setText("读取文件");
+    }
 }
 
 bool lng2csv_tool::read_ori_to_csv(QFile* file,QString suffix)
@@ -121,6 +157,7 @@ bool lng2csv_tool::read_ori_to_csv(QFile* file,QString suffix)
         file->close();
 
         isCSVreaded=true;
+        isLNGreaded=false;
 
         return true;
     }
@@ -368,8 +405,8 @@ bool lng2csv_tool::read_csv_loc(QFile *file)
             int j=0;//j用于记录当前行要搜索的词条
 
             if(txtList[i][j]=='"')++j;
-            if(txtList[i].mid(1,4)=="key_")j+=4;
-            if(txtList[i].mid(5,9)=="LTMOW_lng"){
+            if(txtList[i].mid(j,4)=="key_")j+=4;
+            if(txtList[i].mid(j,9)=="LTMOW_lng"){
                 j+=9;
                 while(txtList[i][j]!='_')++j;
                 ++j;
@@ -377,13 +414,19 @@ bool lng2csv_tool::read_csv_loc(QFile *file)
             }//将j移动到实际key的开头
 
             while(1){
-                if(txtList[i][j]=='"'){//对转义序列特判，mow似乎支持所有类型的c++转义序列
-                    if(txtList[i][j+1]=='"'){
-                        curKey+=txtList[i][j++];
+//                if(txtList[i][j]=='"'){//对转义序列特判，mow似乎支持所有类型的c++转义序列
+//                    if(txtList[i][j+1]=='"'){
+//                        curKey+=txtList[i][j++];
+//                    }
+//                    else{
+//                        break;
+//                    }
+//                }
+                if(txtList[i][j]==','){
+                    if(txtList[i][j-1]=='"'&&txtList[i][j-2]!='"'){//对转义序列特判，mow似乎支持所有类型的c++转义序列
+                        curKey.chop(1);
                     }
-                    else{
-                        break;
-                    }
+                    break;
                 }
                 curKey+=txtList[i][j++];
             }//获取key
@@ -394,7 +437,7 @@ bool lng2csv_tool::read_csv_loc(QFile *file)
                 int keyloc=lngIn.indexOf(curKey);
                 int prefix=0;
 
-                //验证找到的是key而不是别的东西
+                //验证找到的是key而不是别的东西 因为key实在是太短，有可能出现在其他位置，我们要判断找到的key是否在它该在的位置
                 while(keyloc!=0&&lngIn[keyloc]!='\n'){//获取在搜索到的key前有多长的前缀与前缀开始的位置
                     keyloc--;
                     prefix++;
@@ -537,19 +580,186 @@ bool lng2csv_tool::read_csv_loc(QFile *file)
     }
 }
 
-bool lng2csv_tool::read_loc_to_lng(QFile* file)//还没写
+bool lng2csv_tool::read_loc_to_lng(QFile* file,QPushButton* shooter)
 {
+    QString file_codec=ui->encoding->currentText();
+
+    QTextCodec *codec = QTextCodec::codecForName(file_codec.toUtf8());
+    if(file->open(QIODevice::ReadOnly)){
+        if(shooter==ui->read_lng){//说明导入的是翻译
+            QString txtList=ui->PreviewBrowser->toPlainText();//原文
+            //QString testList;
+            ui->PreviewBrowser->clear();//删除原内容
+            QStringList lngIn=codec->toUnicode(file->readAll()).split('\n');//暴力读取翻译
+            //qDebug()<<txtList;
+
+            lngIn[0].replace(QRegExp("^\uFEFF"), "");//去掉bom头，如果存在的话
+
+            for(int index=0;index<lngIn.size();index++){
+                //qDebug()<<lngIn[index];
+                if(lngIn[index].isEmpty()){
+                    continue;
+                }
+                int j=0;//j用于记录当前行要搜索的词条
+                QString curKey;
+
+                if(lngIn[index][j]=='"')++j;
+                if(lngIn[index].mid(j,4)=="key_")j+=4;
+                if(lngIn[index].mid(j,9)=="LTMOW_lng"){
+                    j+=9;
+                    while(lngIn[index][j]!='_')++j;
+                    ++j;
+
+                }//将j移动到实际key的开头
+
+                while(1){//key几乎不可能有,和"
+                    if(lngIn[index][j]==','){
+                        if(lngIn[index][j-1]=='"'&&lngIn[index][j-2]!='"'){//对转义序列特判，mow似乎支持所有类型的c++转义序列
+                            curKey.chop(1);
+                        }
+                        break;
+                    }
+                    curKey+=lngIn[index][j++];
+                }//获取key
+
+                //qDebug()<<index<<' '<<j;
+                if(lngIn[index].size()>j){
+                    j++;
+                }
+                if(lngIn[index][j]=='"'){
+                    j++;
+                    while(1){
+                        if(lngIn[index][j]=='\n'||lngIn[index].size()<=j-1){
+                            break;
+                        }
+                        if(lngIn[index][j]=='"'){
+                            if(j+1!=lngIn[index].size()&&lngIn[index][j+1]=='"'){
+                                ++j;
+                            }
+                            else if(j+1==lngIn[index].size()){
+                                break;
+                            }
+                            else{
+                                ++j;
+                                break;
+                            }
+                        }
+                        ++j;
+                    }
+                }
+                else{
+                    while(j<lngIn[index].size()-1&&lngIn[index][j]!='\n'&&lngIn[index][j]!=','){
+                        ++j;
+                    }
+                }//把j推进到翻译文本位置
+                //qDebug()<<lngIn[index][j];
+
+                j++;
+                QString tran;
+                while(j<lngIn[index].size()){
+                    if(j+1<lngIn[index].size()&&lngIn[index][j+1]=='"'&&lngIn[index][j]=='"'){
+                        tran+="\\\"";
+                        j+=2;
+                    }
+                    else if(lngIn[index][j]!='"'){
+                        tran+=lngIn[index][j++];
+                    }
+                    else{
+                        j++;
+                    }
+                }
+
+                curKey.push_front("{\"");//这样应该能极大的降低匹配错误的概率
+                curKey.push_back('"');
+                //qDebug()<<curKey;
+                if(txtList.indexOf(curKey)!=-1){//如果key存在
+
+
+                    int keyloc=txtList.indexOf(curKey)+curKey.size()+1;
+                    //qDebug()<<keyloc;
+
+                    while(txtList[keyloc]!='"'){
+                        keyloc++;
+                    }
+                    //keyloc++;//找到目标位置
+
+                    //qDebug()<<"OnDelete"<<txtList[keyloc];
+
+                    if(!tran.isEmpty()){
+                        for(int toDel=keyloc+1;;){//删掉原翻译
+                            if(txtList[toDel]=='"'){
+                                if(txtList[toDel+1]=='"'){
+                                    txtList.remove(toDel,2);
+                                }
+                                else{
+                                    break;
+                                }
+                            }
+                            else{
+                                txtList.remove(toDel,1);
+                            }
+                            //qDebug()<<toDel;
+                        }
+
+
+                        txtList.insert(keyloc+1,tran);
+                    }
+
+                    //testList+=tran;
+                    //testList+='\n';
+
+
+                }
+                else{
+                    qDebug()<<"NoKey!";
+                }
+            }
+
+            ui->PreviewBrowser->setText(txtList);
+        }
+        else{//说明导入的是原文
+            ui->PreviewBrowser->clear();//删除原内容
+
+            file_name=file->fileName();
+            file_name.remove(file_name.length() - 4, 4);
+            file_name.append(".lng");
+
+            QString lngIn=codec->toUnicode(file->readAll());//暴力读取全部内容
+
+            ui->PreviewBrowser->setText(lngIn);
+
+            file->close();
+
+            isLNGreaded=true;
+            isCSVreaded=false;
+        }
+    }
+
+
     return true;
 }
 
-bool lng2csv_tool::checklegal(QString file_in,int readMode)//检查文件合法性
+bool lng2csv_tool::checklegal(QString file_in,int readMode,QPushButton* shooter)//检查文件合法性
 {
     bool isForceRead=ui->checkBox_forceRead->isChecked();
 
     if(!isForceRead){
         QString suffix=QFileInfo(file_in).suffix();
+        //qDebug()<<suffix;
+        if(suffix!="csv"&&suffix!="lng"&&suffix!="inc"){
+            QMessageBox *msgBox;
+                msgBox = new QMessageBox("警告",
+                    "文件格式不正确，应为csv,lng或inc格式！",
+                    QMessageBox::Critical,
+                    QMessageBox::Ok | QMessageBox::Default,
+                    QMessageBox::Cancel | QMessageBox::Escape,
+                    0);
 
-        if(readMode==0){
+                msgBox->show();
+
+            return false;
+        }
+        else if(readMode==0){
 
             return true;//不需要检查，两种格式都能读
         }
@@ -572,10 +782,13 @@ bool lng2csv_tool::checklegal(QString file_in,int readMode)//检查文件合法�
             }
         }
         else{
-            if(suffix=="csv"){
+            if(((suffix=="lng"||suffix=="inc")&&shooter==ui->read_original_lng)||(suffix=="csv"&&shooter==ui->read_lng)){
+                return true;
+            }
+            else if(!isLNGreaded&&shooter==ui->read_lng){//如果在导入翻译，则必须先导入原文
                 QMessageBox *msgBox;
                     msgBox = new QMessageBox("警告",
-                        "该功能暂时未完成！",
+                        "尚未导入原文，无法导入翻译！",
                         QMessageBox::Critical,
                         QMessageBox::Ok | QMessageBox::Default,
                         QMessageBox::Cancel | QMessageBox::Escape,
@@ -584,7 +797,19 @@ bool lng2csv_tool::checklegal(QString file_in,int readMode)//检查文件合法�
                     msgBox->show();
 
                 return false;
-                //return true;
+            }
+            else if(shooter==ui->read_original_lng){
+                QMessageBox *msgBox;
+                    msgBox = new QMessageBox("警告",
+                        "文件格式不正确，应为lng或inc格式！",
+                        QMessageBox::Critical,
+                        QMessageBox::Ok | QMessageBox::Default,
+                        QMessageBox::Cancel | QMessageBox::Escape,
+                        0);
+
+                    msgBox->show();
+
+                return false;
             }
             else{
                 QMessageBox *msgBox;
@@ -604,6 +829,21 @@ bool lng2csv_tool::checklegal(QString file_in,int readMode)//检查文件合法�
     else{
         return true;
     }
+}
+
+void lng2csv_tool::setOriReadVisiable(bool mode)
+{
+    if(mode==true){
+        ui->original_path->setVisible(true);
+        ui->read_original_lng->setVisible(true);
+        ui->toolButton_2->setVisible(true);
+    }
+    else{
+        ui->original_path->setVisible(false);
+        ui->read_original_lng->setVisible(false);
+        ui->toolButton_2->setVisible(false);
+    }
+
 }
 
 //D:/steam/steamapps/common/Men of War Assault Squad 2/mods/wzss-eastern_asia_pack_v0_7_5/localization/test.lng
