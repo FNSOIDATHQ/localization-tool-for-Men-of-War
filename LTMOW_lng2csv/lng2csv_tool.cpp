@@ -15,7 +15,7 @@ lng2csv_tool::lng2csv_tool(QWidget *parent) :
 
     pre_path="C:/";
 
-    setWindowTitle("lng/csv转换工具 v0.05");
+    setWindowTitle("lng/csv转换工具 v0.6");
 
     isCSVreaded=false;
     isLNGreaded=false;
@@ -353,6 +353,7 @@ bool lng2csv_tool::read_lng_loc(QFile *file)
                 txtList[i].append('"');
 
                 lngIn.remove(0,k);//因为会存在重复key，而csv文件是严格的自上而下读取，于是只要我们删除已经读取的内容，就可以避免重复读取
+                //if(i==39)qDebug()<<lngIn<<endl;
             }
 
 
@@ -592,6 +593,7 @@ bool lng2csv_tool::read_loc_to_lng(QFile* file,QPushButton* shooter)
             ui->PreviewBrowser->clear();//删除原内容
             QStringList lngIn=codec->toUnicode(file->readAll()).split('\n');//暴力读取翻译
             //qDebug()<<txtList;
+            QString CompleteList;
 
             lngIn[0].replace(QRegExp("^\uFEFF"), "");//去掉bom头，如果存在的话
 
@@ -687,13 +689,14 @@ bool lng2csv_tool::read_loc_to_lng(QFile* file,QPushButton* shooter)
 
                     if(!tran.isEmpty()){
                         for(int toDel=keyloc+1;;){//删掉原翻译
-                            if(txtList[toDel]=='"'){
-                                if(txtList[toDel+1]=='"'){
-                                    txtList.remove(toDel,2);
-                                }
-                                else{
-                                    break;
-                                }
+                            if(toDel>=txtList.size()||txtList[toDel]=='\n'){
+//                                if(txtList[toDel+1]=='"'){
+//                                    txtList.remove(toDel,2);
+//                                }
+//                                else{
+                                txtList.insert(toDel,"\"}");
+                                break;
+//                                }
                             }
                             else{
                                 txtList.remove(toDel,1);
@@ -705,6 +708,10 @@ bool lng2csv_tool::read_loc_to_lng(QFile* file,QPushButton* shooter)
                         txtList.insert(keyloc+1,tran);
                     }
 
+                    //这里用来避免一模一样的key导致的文本替换失败问题
+                    CompleteList.append(txtList.mid(0,keyloc+tran.size()));
+                    txtList=txtList.mid(keyloc+tran.size());
+
                     //testList+=tran;
                     //testList+='\n';
 
@@ -715,14 +722,15 @@ bool lng2csv_tool::read_loc_to_lng(QFile* file,QPushButton* shooter)
                 }
             }
 
-            ui->PreviewBrowser->setText(txtList);
+            CompleteList.append(txtList);
+            ui->PreviewBrowser->setText(CompleteList);
         }
         else{//说明导入的是原文
             ui->PreviewBrowser->clear();//删除原内容
 
             file_name=file->fileName();
-            file_name.remove(file_name.length() - 4, 4);
-            file_name.append(".lng");
+            //file_name.remove(file_name.length() - 4, 4);
+            //file_name.append(".lng");
 
             QString lngIn=codec->toUnicode(file->readAll());//暴力读取全部内容
 
